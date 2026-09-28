@@ -36,13 +36,12 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Detect whether this is Contact or Quote
-    //
     // We check both:
     // - body.type
     // - body.sourcePage
     //
-    // This fixes the situation where the Contact form
-    // doesn't explicitly send type: "Contact".
+    // This allows the Contact form to be correctly identified
+    // even if it doesn't explicitly send type: "Contact".
 
     const sourcePage = String(body.sourcePage || "").trim();
 
@@ -121,7 +120,7 @@ export async function POST(req: NextRequest) {
       status: "New",
     };
 
-    // 8. Send email
+    // 8. Send notification email
     const emailed = await sendNotificationEmail(payload);
 
     // 9. Save to Google Sheets
@@ -149,7 +148,9 @@ export async function POST(req: NextRequest) {
 
       timeline: payload.timeline,
 
-      additionalSpecs: payload.additionalSpecs,
+      // FIX:
+      // Ensure Google Sheets always receives a string.
+      additionalSpecs: payload.additionalSpecs ?? "",
 
       message: payload.message,
     });
